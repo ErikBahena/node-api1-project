@@ -62,5 +62,49 @@ server.post("/api/users", (req, res) => {
     });
 });
 
+// delete a user
+server.delete("/api/users/:id", (req, res) => {
+  UsersDAFs.remove(req.params.id)
+    .then((removedUser) => {
+      removedUser
+        ? res.status(200).json(removedUser)
+        : res
+            .status(404)
+            .json({ message: "The user with the specified ID does not exist" });
+    })
+    .catch(() => {
+      res.status(500).json({
+        message: "The user could not be removed",
+      });
+    });
+});
+
+// update a user
+server.put("/api/users/:id", (req, res) => {
+  UsersDAFs.update(req.params.id, req.body)
+    .then((updatedUser) => {
+      if (!updatedUser) {
+        res
+          .status(404)
+          .json({ message: "The user with the specified ID does not exist" });
+        return;
+      }
+
+      if (!req.body.bio || !req.body.name) {
+        res
+          .status(400)
+          .json({ message: "Please provide name and bio for the user" });
+        return;
+      }
+
+      res.status(200).json(updatedUser);
+    })
+    .catch(() => {
+      res.status(500).json({
+        message: "The user information could not be modified",
+      });
+    });
+});
+
 // EXPORT YOUR SERVER instead of {}
 module.exports = server;
